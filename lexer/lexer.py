@@ -1,4 +1,4 @@
-from tokens import *
+Rfrom tokens import *
 
 class Lexer:
     def __init__(self, text):
@@ -52,14 +52,15 @@ class Lexer:
                 return Token(T_NEWLINE, '\n')
 
             if self.current_char in ['{', '}', '(', ')', ';', ',']:
-                token_type = T_PARANTHESES if self.current_char in '()' else T_PUNCTUATION
+                token_type = T_PARENTHESIS if self.current_char in '()' else T_PUNCTUATION
                 token = Token(token_type, self.current_char) 
                 self.advance()
                 return token
 
             if self.current_char.isdigit():
                 return self.extract_number()
-            if self.current_char.isalpha():
+
+            if self.current_char.isalpha() or self.current_char == '_':
                 return self.extract_word()
 
             if self.current_char == '=':
@@ -91,12 +92,12 @@ class Lexer:
                 return Token(T_OPERATOR, '>')
 
             
-            if self.current_char in ['+', '-', '*', '/', '&', '|', '%', '~', '^']:
+            if self.current_char in ['+', '-', '*', '/', '&&', '||', '%', '~', '^']:
                 token = Token(T_OPERATOR, self.current_char)
                 self.advance()
                 return token
 
-            print(f"Invalid character: {self.current_char}")
+            raise Exception(f"Illegal character: {self.current_char}")
             self.advance()
 
         return Token(T_EOF, None)

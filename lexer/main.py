@@ -3,7 +3,7 @@ from lexer import Lexer
 
 def run():
 
-    file_path = "tests/test1.hl"
+    file_path = "tests/test1.rpl"
 
     if not os.path.exists(file_path):
         print(f"Error: File '{file_path}' not found!")
