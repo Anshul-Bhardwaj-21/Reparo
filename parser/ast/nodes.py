@@ -244,3 +244,29 @@ class DoWhileNode:
 
     def __repr__(self):
         return f"DoWhile({self.body}, {self.condition})"
+    
+class FunctionDefNode:
+    def __init__(self, name, params, body):
+        self.name = name
+        self.params = params
+        self.body = body
+
+    def __repr__(self):
+        return f"FunctionDef({self.name.value}, params={self.params}, body={self.body})"
+
+
+class ReturnNode:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"Return({self.value})"
+
+
+class FunctionCallNode:
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+    def __repr__(self):
+        return f"Call({self.name.value}, args={self.args})"    

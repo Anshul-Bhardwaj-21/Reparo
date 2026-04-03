@@ -41,7 +41,7 @@ from lexer.tokens import (
 from parser.ast.nodes import (
     NumberNode, StringNode, BoolNode, NullNode,
     IdentifierNode, BinOpNode, UnaryOpNode,
-    AssignmentNode, PrintNode, IfNode, WhileNode, ForNode,DoWhileNode
+    AssignmentNode, PrintNode, IfNode, WhileNode, ForNode,DoWhileNode ,FunctionDefNode, ReturnNode, FunctionCallNode
 )
 
 
@@ -172,9 +172,16 @@ class Parser:
 
         if tok.type == T_KEYWORD and tok.value == 'do':
             return self._do_while_stmt()
+        # function definition
+        if tok.type == T_KEYWORD and tok.value == 'function':
+            return self._function_def()
 
+    # return statement
+        if tok.type == T_KEYWORD and tok.value == 'return':
+           return self._return_stmt()
     # fallback
         return self._expression()
+    
     def _assignment(self):
         """
         assignment → IDENTIFIER '=' expression NEWLINE?
@@ -399,8 +406,23 @@ class Parser:
         # Identifier (variable reference)
         if tok.type == T_IDENTIFIER:
             self._advance()
-            return IdentifierNode(tok)
 
+    # function call
+            if self._match(T_PARENTHESIS, '('):
+                self._advance()
+
+                args = []
+                if not self._match(T_PARENTHESIS, ')'):
+                   args.append(self._expression())
+                   while self._match(T_PUNCTUATION, ','):
+                      self._advance()
+                      args.append(self._expression())
+
+                self._expect(T_PARENTHESIS, ')')
+
+                return FunctionCallNode(tok, args)
+
+            return IdentifierNode(tok)
         # Grouped expression: '(' expression ')'
         if tok.type == T_PARENTHESIS and tok.value == '(':
             self._advance()
@@ -409,4 +431,27 @@ class Parser:
             return expr
 
         raise ParseError("Unexpected token in expression", tok)
-    
+   
+    def _function_def(self):
+        self._expect(T_KEYWORD, 'function')
+
+        name = self._expect(T_IDENTIFIER)
+
+        self._expect(T_PARENTHESIS, '(')
+
+        params = []
+        if not self._match(T_PARENTHESIS, ')'):
+            params.append(self._expect(T_IDENTIFIER))
+            while self._match(T_PUNCTUATION, ','):
+                self._advance()
+                params.append(self._expect(T_IDENTIFIER))
+
+        self._expect(T_PARENTHESIS, ')')
+
+        body = self._block()
+
+        return FunctionDefNode(name, params, body)
+    def _return_stmt(self):
+       self._expect(T_KEYWORD, 'return')
+       value = self._expression()
+       return ReturnNode(value)
