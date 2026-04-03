@@ -36,7 +36,14 @@ class Interpreter:
     def __init__(self):
         # TODO: Replace with a proper Environment / scope-stack class.
         self.environment: dict = {}
+    def visit_ForNode(self, node):
+        self.visit(node.init)
 
+        while self.visit(node.condition):
+            for stmt in node.body:
+               self.visit(stmt)
+
+            self.visit(node.update)
     def run(self, nodes: list):
         """
         Entry point — receives the list of AST nodes from the semantic analyser.
@@ -45,3 +52,4 @@ class Interpreter:
         """
         # Stub: nothing executed yet.
         print("[Interpreter] Execution not yet implemented — coming soon.")
+    
