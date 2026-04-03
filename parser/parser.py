@@ -41,7 +41,7 @@ from lexer.tokens import (
 from parser.ast.nodes import (
     NumberNode, StringNode, BoolNode, NullNode,
     IdentifierNode, BinOpNode, UnaryOpNode,
-    AssignmentNode, PrintNode, IfNode, WhileNode,
+    AssignmentNode, PrintNode, IfNode, WhileNode, ForNode,DoWhileNode
 )
 
 
@@ -146,33 +146,35 @@ class Parser:
     # ------------------------------------------------------------------
 
     def _statement(self):
-        """
-        Dispatch to the correct statement parser based on the current token.
-        Falls back to parsing a bare expression (e.g. a function call).
-        """
         tok = self.current_tok
 
-        # Assignment: IDENTIFIER '=' …
+    # Assignment
         if tok.type == T_IDENTIFIER:
-            next_tok = self._peek()
-            if next_tok and next_tok.type == T_OPERATOR and next_tok.value == '=':
-                return self._assignment()
+           next_tok = self._peek()
+           if next_tok and next_tok.type == T_OPERATOR and next_tok.value == '=':
+              return self._assignment()
 
-        # print(…)
+    # print
         if tok.type == T_KEYWORD and tok.value == 'print':
             return self._print_stmt()
 
-        # if …
+    # if
         if tok.type == T_KEYWORD and tok.value == 'if':
             return self._if_stmt()
 
-        # while …
+    # while
         if tok.type == T_KEYWORD and tok.value == 'while':
-            return self._while_stmt()
+           return self._while_stmt()
 
-        # Bare expression (e.g. a standalone arithmetic expression)
+    # ✅ ADD HERE (BEFORE RETURN)
+        if tok.type == T_KEYWORD and tok.value == 'for':
+           return self._for_stmt()
+
+        if tok.type == T_KEYWORD and tok.value == 'do':
+            return self._do_while_stmt()
+
+    # fallback
         return self._expression()
-
     def _assignment(self):
         """
         assignment → IDENTIFIER '=' expression NEWLINE?
@@ -183,6 +185,8 @@ class Parser:
         # Optional trailing newline
         if self._match(T_NEWLINE):
             self._advance()
+        if self._match(T_PUNCTUATION, ';'):
+            self._advance()   
         return AssignmentNode(name_tok, value)
 
     def _print_stmt(self):
@@ -229,7 +233,37 @@ class Parser:
         condition = self._expression()
         body      = self._block()
         return WhileNode(condition, body)
+    def _do_while_stmt(self):
+        self._expect(T_KEYWORD, 'do')
 
+        body = self._block()
+
+        self._expect(T_KEYWORD, 'while')
+        condition = self._expression()
+
+        return DoWhileNode(body, condition)
+    
+    def _for_stmt(self):
+
+
+        self._expect(T_KEYWORD, 'for')
+
+    # init
+        init = self._assignment()
+
+        
+
+    # condition
+        condition = self._expression()
+
+        self._expect(T_PUNCTUATION, ';')
+
+    # update
+        update = self._assignment()
+
+        body = self._block()
+
+        return ForNode(init, condition, update, body)
     def _block(self) -> list:
         """
         block → '{' NEWLINE? statement* '}'
@@ -333,6 +367,7 @@ class Parser:
 
         return self._primary()
 
+
     def _primary(self):
         """
         primary → NUMBER | STRING | 'true' | 'false' | 'null'
@@ -374,3 +409,4 @@ class Parser:
             return expr
 
         raise ParseError("Unexpected token in expression", tok)
+    

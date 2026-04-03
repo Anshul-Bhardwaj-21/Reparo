@@ -226,3 +226,21 @@ class WhileNode:
 
     def __repr__(self) -> str:
         return f"(WHILE {self.condition} DO {self.body})"
+class ForNode:
+    def __init__(self, init, condition, update, body):
+        self.init = init
+        self.condition = condition
+        self.update = update
+        self.body = body
+
+    def __repr__(self):
+        return f"For({self.init}, {self.condition}, {self.update}, {self.body})"
+
+
+class DoWhileNode:
+    def __init__(self, body, condition):
+        self.body = body
+        self.condition = condition
+
+    def __repr__(self):
+        return f"DoWhile({self.body}, {self.condition})"
