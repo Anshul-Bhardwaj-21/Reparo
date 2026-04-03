@@ -27,7 +27,7 @@ T_EOF         = 'EOF'          # End of file — signals the lexer is done
 KEYWORDS = {
     'if', 'else', 'elif', 'while', 'for',
     'return', 'print', 'true', 'false', 'null',
-    'and', 'or', 'not', 'do'
+    'and', 'or', 'not', 'do' ,'function'
 }
 
 
